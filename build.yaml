@@ -1,0 +1,8 @@
+include:
+  - board: seeeduino_xiao_ble
+    shield: corne_left
+    keymap: corne
+
+  - board: seeeduino_xiao_ble
+    shield: corne_right
+    keymap: corne
