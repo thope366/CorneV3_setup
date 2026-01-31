@@ -1,32 +1,30 @@
-name: Build Corne
+name: Build ZMK Firmware
 
 on: [workflow_dispatch]
 
 jobs:
-  build-left:
+  build:
+    name: Build Corne Firmware
     runs-on: ubuntu-latest
-    container:
-      image: zmkfirmware/zmk-build-arm:3.0
+    
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
       - name: Build Left
-        run: |
-          west init -l config
-          west update
-          west zephyr-export
-          west build -s zmk/app -b seeeduino_xiao_ble -- -DSHIELD=corne_left -DZMK_CONFIG="/github/workspace/config"
-          cp build/zephyr/zmk.uf2 corne_left.uf2
-          
-  build-right:
-    runs-on: ubuntu-latest
-    container:
-      image: zmkfirmware/zmk-build-arm:3.0
-    steps:
-      - uses: actions/checkout@v3
+        uses: zmkfirmware/zmk-build-action@v0.4.1
+        with:
+          board: seeeduino_xiao_ble
+          shield: corne_left
+          keymap: corne
+          keymap-path: config/corne.keymap
+          config-path: config/corne.conf
+      
       - name: Build Right
-        run: |
-          west init -l config
-          west update
-          west zephyr-export
-          west build -s zmk/app -b seeeduino_xiao_ble -- -DSHIELD=corne_right -DZMK_CONFIG="/github/workspace/config"
-          cp build/zephyr/zmk.uf2 corne_right.uf2
+        uses: zmkfirmware/zmk-build-action@v0.4.1
+        with:
+          board: seeeduino_xiao_ble
+          shield: corne_right
+          keymap: corne
+          keymap-path: config/corne.keymap
+          config-path: config/corne.conf
