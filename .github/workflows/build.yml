@@ -1,29 +1,48 @@
-name: Build ZMK Firmware
+name: Build Corne Firmware
 
 on: [workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: zmkfirmware/zmk-build-arm:3.2
     
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
       
-      - name: Build Left Side
-        uses: zmkfirmware/zmk-build-action@v0.4.1
-        with:
-          board: seeeduino_xiao_ble
-          shield: corne_left
-          keymap: corne
-          keymap-path: config/corne.keymap
-          config-path: config/corne.conf
+      - name: Build Left
+        run: |
+          cd /workspace
+          west init -l /github/workspace/config
+          west update
+          west zephyr-export
+          
+          west build -s zmk/app -b seeeduino_xiao_ble \
+            -- -DSHIELD=corne_left \
+               -DZMK_CONFIG="/github/workspace/config"
+          
+          mkdir -p /github/workspace/firmware
+          cp build/zephyr/zmk.uf2 /github/workspace/firmware/corne_left.uf2
       
-      - name: Build Right Side  
-        uses: zmkfirmware/zmk-build-action@v0.4.1
+      - name: Build Right
+        run: |
+          cd /workspace
+          # Re-init only needed once, but doing it again to be safe
+          west init -l /github/workspace/config
+          west update
+          west zephyr-export
+          
+          west build -s zmk/app -b seeeduino_xiao_ble \
+            -- -DSHIELD=corne_right \
+               -DZMK_CONFIG="/github/workspace/config"
+          
+          mkdir -p /github/workspace/firmware
+          cp build/zephyr/zmk.uf2 /github/workspace/firmware/corne_right.uf2
+      
+      - name: Upload Firmware
+        uses: actions/upload-artifact@v3
         with:
-          board: seeeduino_xiao_ble
-          shield: corne_right
-          keymap: corne
-          keymap-path: config/corne.keymap
-          config-path: config/corne.conf
+          name: corne-firmware
+          path: firmware/*.uf2
