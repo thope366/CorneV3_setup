@@ -4,14 +4,13 @@ on: [workflow_dispatch]
 
 jobs:
   build:
-    name: Build Corne Firmware
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
       
-      - name: Build Left
+      - name: Build Left Side
         uses: zmkfirmware/zmk-build-action@v0.4.1
         with:
           board: seeeduino_xiao_ble
@@ -20,7 +19,7 @@ jobs:
           keymap-path: config/corne.keymap
           config-path: config/corne.conf
       
-      - name: Build Right
+      - name: Build Right Side  
         uses: zmkfirmware/zmk-build-action@v0.4.1
         with:
           board: seeeduino_xiao_ble
