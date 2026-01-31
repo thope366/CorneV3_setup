@@ -5,16 +5,41 @@ on: [workflow_dispatch]
 jobs:
   build-left:
     runs-on: ubuntu-latest
+    container:
+      image: zmkfirmware/zmk-build-arm:3.0
     steps:
       - uses: actions/checkout@v3
-      - uses: docker://zmkfirmware/zmk-build-arm:3.0
-        with:
-          args: build -b seeeduino_xiao_ble -s corne_left
+      - name: Build Left
+        run: |
+          west init -l config
+          west update
+          west zephyr-export
+          west build -s zmk/app -b seeeduino_xiao_ble -- -DSHIELD=corne_left -DZMK_CONFIG="/github/workspace/config"
+          cp build/zephyr/zmk.uf2 /github/workspace/corne_left.uf2
           
   build-right:
     runs-on: ubuntu-latest
+    container:
+      image: zmkfirmware/zmk-build-arm:3.0
     steps:
       - uses: actions/checkout@v3
-      - uses: docker://zmkfirmware/zmk-build-arm:3.0
+      - name: Build Right
+        run: |
+          west init -l config
+          west update
+          west zephyr-export
+          west build -s zmk/app -b seeeduino_xiao_ble -- -DSHIELD=corne_right -DZMK_CONFIG="/github/workspace/config"
+          cp build/zephyr/zmk.uf2 /github/workspace/corne_right.uf2
+          
+  upload:
+    runs-on: ubuntu-latest
+    needs: [build-left, build-right]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
         with:
-          args: build -b seeeduino_xiao_ble -s corne_right
+          name: corne-firmware
+          path: |
+            corne_left.uf2
+            corne_right.uf2
