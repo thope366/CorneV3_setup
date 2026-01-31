@@ -1,33 +1,25 @@
-name: Build ZMK Firmware
+name: Build Corne Firmware
 
-on:
-  workflow_dispatch:
-    inputs:
-      board:
-        description: 'Board to build for'
-        required: true
-        default: 'seeeduino_xiao_ble'
-        type: string
-      shield:
-        description: 'Shield to build for'
-        required: true
-        default: 'corne_left'
-        type: string
-      keymap:
-        description: 'Keymap to build'
-        required: true
-        default: 'corne'
-        type: string
+on: [workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Build ZMK
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        
+      - name: Build Left Side
         uses: zmkfirmware/zmk@main
         with:
-          board: ${{ github.event.inputs.board }}
-          shield: ${{ github.event.inputs.shield }}
-          keymap: ${{ github.event.inputs.keymap }}
+          board: seeeduino_xiao_ble
+          shield: corne_left
+          keymap: corne
+          
+      - name: Build Right Side
+        uses: zmkfirmware/zmk@main
+        with:
+          board: seeeduino_xiao_ble
+          shield: corne_right
+          keymap: corne
